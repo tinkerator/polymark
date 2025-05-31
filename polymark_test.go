@@ -159,3 +159,40 @@ func TestText(t *testing.T) {
 		}
 	}
 }
+
+func TestAlign(t *testing.T) {
+	ts := []struct {
+		a Alignment
+		s string
+	}{
+		{AlignBelow + AlignLeft, "TL"},
+		{AlignBelow + AlignCenter, "TC"},
+		{AlignBelow + AlignRight, "TR"},
+		{AlignMiddle + AlignLeft, "ML"},
+		{AlignMiddle + AlignCenter, "MC"},
+		{AlignMiddle + AlignRight, "MR"},
+		{AlignAbove + AlignLeft, "BL"},
+		{AlignAbove + AlignCenter, "BC"},
+		{AlignAbove + AlignRight, "BR"},
+	}
+	pen := &Pen{Scribe: 1}
+	font, err := hershey.New("futural")
+	if err != nil {
+		t.Fatalf("unable to load font: %v", err)
+	}
+	var s *polygon.Shapes
+	for i, v := range ts {
+		x := float64(60 * (i % 3))
+		y := float64(15 * (i / 3))
+		s = pen.Text(s, x, y, .3, v.a, font, v.s)
+	}
+	got := display(s)
+	failed := len(got) != 76 || got[74] != ".###########..........#############.........###########..............#######.................###########..........#.............#." || got[42] != "#.....#...#.....#.......#................#.....#...#.....#.......##...........##..........#.....#...#.....#.......#..........#...." || got[17] != "........#...........#...............................#...........##...........##.......................#...........#..........#...."
+	for i, line := range got {
+		if failed {
+			t.Errorf("%3d> %q", i, line)
+		} else {
+			t.Logf("%3d> %q", i, line)
+		}
+	}
+}

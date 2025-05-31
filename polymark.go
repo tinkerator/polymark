@@ -76,17 +76,18 @@ func (pen *Pen) Line(s *polygon.Shapes, pts []polygon.Point, width float64, midC
 // text.
 type Alignment int
 
+// AlignLeft, AlignCenter, AlignRight specify horizontal alignment.
+// AlignMiddle, AlignAbove, AlignBelow specify vertical alignment.
 const (
-	AlignLeft Alignment = iota
-	AlignCenter
-	AlignRight
+	AlignLeft   Alignment = 0
+	AlignCenter           = 1
+	AlignRight            = 2
+	AlignMiddle           = 0
+	AlignAbove            = 4
+	AlignBelow            = 8
 )
 
-const (
-	AlignMiddle Alignment = iota << 2
-	AlignAbove
-	AlignBelow
-)
+const ()
 
 // Text renders some text as a series of polygon outlines. For scale
 // >= 1.0 the enclosed polygon will have width scale*pen.Scribe, and
@@ -117,7 +118,7 @@ func (pen *Pen) Text(s *polygon.Shapes, x, y, scale float64, a Alignment, font *
 	case AlignRight:
 		x0 = x - trX(xR)
 	}
-	switch a >> 2 {
+	switch a & ^3 {
 	case AlignAbove:
 		y0 = y - trY(gl.Top)
 	case AlignMiddle:
