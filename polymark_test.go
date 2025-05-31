@@ -3,6 +3,7 @@ package polymark
 import (
 	"image"
 	"image/color"
+	"math"
 	"testing"
 
 	"zappem.net/pub/graphics/hershey"
@@ -151,6 +152,33 @@ func TestText(t *testing.T) {
 	}
 	if len(got) != len(want) {
 		t.Fatalf("incorrect number of lines got=%d want=%d", len(got), len(want))
+	}
+	for i, line := range got {
+		t.Logf("[%2d]  got=%q", i, line)
+		if line != want[i] {
+			t.Errorf("[%2d] want=%q", i, want[i])
+		}
+	}
+	pt := polygon.Point{6, 5}
+	// Rotate the glyph (polygon rotation is clockwise = +ve, but
+	// because the fonts are +ve y down the page, when we reverse
+	// y to render) we get a clockwise rotation of 45 degrees
+	// with this function.
+	s = s.Transform(pt, pt, math.Pi/4, .5)
+	got = display(s)
+	want = []string{
+		"..#####..",
+		".##..#.#.",
+		".#.#..##.",
+		"#...#..#.",
+		"#....###.",
+		"##....#..",
+		"#.#......",
+		".####....",
+		".........",
+	}
+	if len(got) != len(want) {
+		t.Errorf("incorrect number of lines got=%d want=%d", len(got), len(want))
 	}
 	for i, line := range got {
 		t.Logf("[%2d]  got=%q", i, line)
