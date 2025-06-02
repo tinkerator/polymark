@@ -15,6 +15,13 @@ type Pen struct {
 	// is essentially the minimum width of any outlines
 	// represented by polygons.
 	Scribe float64
+
+	// Reflect reverses the Y component of the font as implemented
+	// by (*Pen).Text(). The default hershey fonts have coordinate
+	// Y increasing down to the lower edges of the Glyphs. This
+	// attribute of the Pen causes the Y component of the font to
+	// be negated, increasing Y at the upper edges of the Glyph.
+	Reflect bool
 }
 
 // Circle constructs an approximate circle polygon.
@@ -97,17 +104,20 @@ const ()
 func (pen *Pen) Text(s *polygon.Shapes, x, y, scale float64, a Alignment, font *hershey.Font, text string) *polygon.Shapes {
 	gl, xL, xR := font.Text(text)
 	wScale := pen.Scribe * scale
-	fScale := wScale
-	if scale < 1.0 {
-		fScale = pen.Scribe
+	xScale := wScale
+	if scale <= 1.0 {
+		xScale = pen.Scribe
 	}
-
+	yScale := xScale
+	if pen.Reflect {
+		yScale = -yScale
+	}
 	var x0, y0 float64
 	trX := func(x int) float64 {
-		return x0 + float64(x)*fScale
+		return x0 + float64(x)*xScale
 	}
 	trY := func(y int) float64 {
-		return y0 + float64(y)*fScale
+		return y0 + float64(y)*yScale
 	}
 
 	switch a & 3 {

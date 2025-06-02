@@ -186,6 +186,45 @@ func TestText(t *testing.T) {
 			t.Errorf("[%2d] want=%q", i, want[i])
 		}
 	}
+	// Reverse the Y direction of the glyph.
+	pen.Reflect = true
+	s = pen.Text(nil, 1, 1, .6, 0, font, "p")
+	got = display(s)
+	want = []string{
+		"##............",
+		"##............",
+		"##............",
+		"##............",
+		"##............",
+		"##............",
+		"##............",
+		"##.#####......",
+		"###.....###...",
+		"###........#..",
+		"##..........#.",
+		"#...........#.",
+		"#............#",
+		"#............#",
+		"#............#",
+		"#............#",
+		"#............#",
+		"#...........#.",
+		"#...........#.",
+		"##..........#.",
+		"##.........#..",
+		"####.....##...",
+		"##..#####.....",
+	}
+	if len(got) != len(want) {
+		t.Errorf("incorrect number of lines got=%d want=%d", len(got), len(want))
+	}
+	for i, line := range got {
+		t.Logf("[%2d]  got=%q", i, line)
+		if i < len(want) && line != want[i] {
+			t.Errorf("[%2d] want=%q", i, want[i])
+		}
+	}
+
 }
 
 func TestAlign(t *testing.T) {
