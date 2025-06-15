@@ -7,8 +7,21 @@ be able to render shapes as outlines. This package converts desired
 shapes into such outlines in the form of
 [`polygon.Shapes`](https://zappem.net/pub/math/polygon).
 
-For now, the package contains a simple set of tests that can be run as
-follows:
+## Example
+
+The package contains an examples/lines.go program to demonstrate the
+capabilities of the `polymark` package. For example,
+
+```
+$ go run examples/lines.go --n=3 --wide=10 --m=5 --width 400 --height 400
+2025/06/15 09:58:50 wrote result to "image.png"
+```
+
+generates a 400x400 pixel image: ![polygon outlines](n3w10m5.png)
+
+## Tests
+
+The package contains a simple set of tests that can be run as follows:
 
 ```
 $ git clone https://github.com/tinkerator/polymark.git
