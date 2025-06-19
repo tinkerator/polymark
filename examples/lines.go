@@ -62,8 +62,8 @@ func main() {
 			pts = append(pts, polygon.Point{x, y})
 		}
 		poly = pen.Line(poly, pts, *wide, *mid, *end)
-		poly.Union()
 	}
+	poly.Union()
 
 	im := image.NewRGBA(image.Rect(0, 0, *width, *height))
 	draw.Draw(im, im.Bounds(), &image.Uniform{color.RGBA{0xff, 0xff, 0xff, 0xff}}, image.ZP, draw.Src)

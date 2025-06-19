@@ -24,21 +24,28 @@ type Pen struct {
 	Reflect bool
 }
 
-// Circle constructs an approximate circle polygon.
-func (pen *Pen) Circle(s *polygon.Shapes, pt polygon.Point, r float64) *polygon.Shapes {
+// circle constructs an approximate circle polygon with points
+// rotationally offset by theta.
+func (pen *Pen) circle(s *polygon.Shapes, pt polygon.Point, r, theta float64) *polygon.Shapes {
 	n := math.Floor(4 * r / pen.Scribe)
-	if n < 8 {
-		n = 8
+	if n < 4 {
+		n = 4
 	}
+	n *= 4 // want a multiple of 4 for symmetry
 	ang := 2 * math.Pi / n
 	var pts []polygon.Point
 	for i := 0.0; i < n; i++ {
 		pts = append(pts, polygon.Point{
-			X: pt.X + r*math.Cos(i*ang),
-			Y: pt.Y + r*math.Sin(i*ang),
+			X: pt.X + r*math.Cos(theta+i*ang),
+			Y: pt.Y + r*math.Sin(theta+i*ang),
 		})
 	}
 	return s.Builder(pts...)
+}
+
+// Circle constructs an approximate circle polygon.
+func (pen *Pen) Circle(s *polygon.Shapes, pt polygon.Point, r float64) *polygon.Shapes {
+	return pen.circle(s, pt, r, 0)
 }
 
 // Line constructs the outline of a series of straight line segments
@@ -51,13 +58,18 @@ func (pen *Pen) Line(s *polygon.Shapes, pts []polygon.Point, width float64, midC
 	half := width / 2
 	for i, pt := range pts {
 		if i == 0 {
+			theta := 0.0
+			if len(pts) > 1 {
+				theta = -math.Atan2(pts[1].Y-pt.Y, pts[1].X-pt.X)
+			}
 			if endCap {
-				working = pen.Circle(working, pt, half)
+				working = pen.circle(working, pt, half, theta)
 			}
 			last = pt
 			continue
 		}
 		dX, dY := pt.X-last.X, pt.Y-last.Y
+		theta := -math.Atan2(dY, dX)
 		r := math.Sqrt(dX*dX + dY*dY)
 		dX, dY = half*dX/r, half*dY/r
 		working = working.Builder(
@@ -68,14 +80,12 @@ func (pen *Pen) Line(s *polygon.Shapes, pts []polygon.Point, width float64, midC
 		)
 		last = pt
 		if final := i == len(pts)-1; (midCap && !final) || (endCap && final) {
-			working = pen.Circle(working, pt, half)
+			working = pen.circle(working, pt, half, theta)
 		}
 	}
-	working.Union()
 	for _, p := range working.P {
 		s = s.Builder(p.PS...)
 	}
-	s.Union()
 	return s
 }
 
@@ -151,7 +161,6 @@ func (pen *Pen) Text(s *polygon.Shapes, x, y, scale float64, a Alignment, font *
 		}
 		s = pen.Line(s, pts, wScale, true, true)
 	}
-	s.Union()
 
 	return s
 }
