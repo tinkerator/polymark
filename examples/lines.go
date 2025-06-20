@@ -17,8 +17,8 @@ import (
 )
 
 var (
-	n      = flag.Int("n", 7, "line count of polygon")
-	m      = flag.Int("m", 1, "number of overlapping polygons")
+	n      = flag.Int("n", 6, "line count of polygon")
+	m      = flag.Int("m", 7, "number of overlapping polygons")
 	width  = flag.Int("width", 500, "width of image")
 	height = flag.Int("height", 500, "height of image")
 	dest   = flag.String("dest", "image.png", "name out output image")
