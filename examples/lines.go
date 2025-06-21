@@ -3,6 +3,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -11,6 +12,7 @@ import (
 	"math"
 	"os"
 
+	"zappem.net/pub/graphics/hershey"
 	"zappem.net/pub/graphics/polymark"
 	"zappem.net/pub/graphics/raster"
 	"zappem.net/pub/math/polygon"
@@ -28,6 +30,8 @@ var (
 	mid    = flag.Bool("mid-cap", true, "round mid-points of lines")
 	end    = flag.Bool("end-cap", true, "round end-points of lines")
 	fill   = flag.Bool("fill", false, "fill the interior of the shape")
+	ids    = flag.Bool("ids", false, "show polygon sequence number")
+	fn     = flag.String("font", "futural", "hershey font name")
 )
 
 func main() {
@@ -70,6 +74,7 @@ func main() {
 	draw.Draw(im, im.Bounds(), &image.Uniform{color.RGBA{0xff, 0xff, 0xff, 0xff}}, image.ZP, draw.Src)
 
 	rast := raster.NewRasterizer()
+
 	if *fill {
 		var holes []int
 		for i, p := range poly.P {
@@ -91,6 +96,37 @@ func main() {
 				rast.Render(im, 0, 0, col)
 				rast.Reset()
 			}
+		}
+	}
+
+	if *ids {
+		font, err := hershey.New(*fn)
+		if err != nil {
+			log.Fatalf("failed to load font: %v", err)
+		}
+		var s *polygon.Shapes
+		tPen := &polymark.Pen{
+			Scribe: .5,
+		}
+		for i, p := range poly.P {
+			align := polymark.AlignMiddle | polymark.AlignCenter
+			x, y := 0.5*(p.MinX+p.MaxX), 0.5*(p.MinY+p.MaxY)
+			if !p.Hole {
+				align = polymark.AlignBelow | polymark.AlignCenter
+				y = p.MinY
+			}
+			s = tPen.Text(s, x, y, .15, align, font, fmt.Sprint(i))
+		}
+		s.Union()
+		col := color.RGBA{0x0, 0x0, 0x0, 0xff}
+		for _, p := range s.P {
+			from := p.PS[len(p.PS)-1]
+			for _, to := range p.PS {
+				raster.LineTo(rast, true, from.X, from.Y, to.X, to.Y, *weight)
+				from = to
+			}
+			rast.Render(im, 0, 0, col)
+			rast.Reset()
 		}
 	}
 

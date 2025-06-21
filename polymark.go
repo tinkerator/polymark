@@ -97,11 +97,11 @@ type Alignment int
 // AlignMiddle, AlignAbove, AlignBelow specify vertical alignment.
 const (
 	AlignLeft   Alignment = 0
-	AlignCenter           = 1
-	AlignRight            = 2
-	AlignMiddle           = 0
-	AlignAbove            = 4
-	AlignBelow            = 8
+	AlignCenter Alignment = 1
+	AlignRight  Alignment = 2
+	AlignMiddle Alignment = 0
+	AlignAbove  Alignment = 4
+	AlignBelow  Alignment = 8
 )
 
 const ()

@@ -31,10 +31,12 @@ $ go run examples/lines.go
 2025/06/20 08:35:12 wrote result to "image.png"
 ```
 
-The default options for `example/lines.go` with the `--fill` argument,
-generates the following 500x500 pixel image:
+The default options for `example/lines.go` with the `--ids` and
+`--fill` arguments, generates the following 500x500 pixel image with
+the solid parts of the shapes filled and each polygon of outline
+numerically identified:
 
-![filled outlines](n6w10m7f.png)
+![filled outlines](n6w10m7if.png)
 
 ```
 $ go run examples/lines.go --fill
