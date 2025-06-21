@@ -9,7 +9,7 @@ shapes into such outlines in the form of
 
 ## Example
 
-The package contains an examples/lines.go program to demonstrate the
+The package contains an `examples/lines.go` program to demonstrate the
 capabilities of the `polymark` package. For example,
 
 ```
@@ -18,14 +18,26 @@ $ go run examples/lines.go --n=3 --wide=10 --m=5 --width 400 --height 400
 ```
 
 generates a 400x400 pixel image:
+
 ![polygon outlines](n3w10m5.png)
 
 The default options for `example/lines.go` generate the following
 500x500 pixel image:
+
 ![default outlines](n6w10m7.png)
 
 ```
 $ go run examples/lines.go 
+2025/06/20 08:35:12 wrote result to "image.png"
+```
+
+The default options for `example/lines.go` with the `--fill` argument,
+generates the following 500x500 pixel image:
+
+![filled outlines](n6w10m7f.png)
+
+```
+$ go run examples/lines.go --fill
 2025/06/20 08:35:12 wrote result to "image.png"
 ```
 

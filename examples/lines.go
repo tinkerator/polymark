@@ -27,6 +27,7 @@ var (
 	fact   = flag.Float64("fact", 2, "how much to spread polygons")
 	mid    = flag.Bool("mid-cap", true, "round mid-points of lines")
 	end    = flag.Bool("end-cap", true, "round end-points of lines")
+	fill   = flag.Bool("fill", false, "fill the interior of the shape")
 )
 
 func main() {
@@ -69,6 +70,30 @@ func main() {
 	draw.Draw(im, im.Bounds(), &image.Uniform{color.RGBA{0xff, 0xff, 0xff, 0xff}}, image.ZP, draw.Src)
 
 	rast := raster.NewRasterizer()
+	if *fill {
+		var holes []int
+		for i, p := range poly.P {
+			if p.Hole {
+				holes = append(holes, i)
+			}
+		}
+		for i, p := range poly.P {
+			if p.Hole {
+				continue
+			}
+			lines, err := poly.Slice(i, 2, holes...)
+			if err != nil {
+				log.Fatalf("slice failed: %v", err)
+			}
+			col := color.RGBA{0xb0, 0xa0, 0xf0, 0xff}
+			for _, line := range lines {
+				raster.LineTo(rast, true, line.From.X, line.From.Y, line.To.X, line.To.Y, 1)
+				rast.Render(im, 0, 0, col)
+				rast.Reset()
+			}
+		}
+	}
+
 	for _, p := range poly.P {
 		col := color.RGBA{0xff, 0, 0, 0xff}
 		if p.Hole {
