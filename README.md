@@ -21,27 +21,30 @@ generates a 400x400 pixel image:
 
 ![polygon outlines](n3w10m5.png)
 
-The default options for `example/lines.go` generate the following
-500x500 pixel image:
-
-![default outlines](n6w10m7.png)
+The default options for `example/lines.go`:
 
 ```
 $ go run examples/lines.go 
 2025/06/20 08:35:12 wrote result to "image.png"
 ```
 
+generates the following 500x500 pixel image:
+
+![default outlines](n6w10m7.png)
+
 The default options for `example/lines.go` with the `--ids` and
-`--fill` arguments, generates the following 500x500 pixel image with
+`--fill` arguments:
+
+```
+$ go run examples/lines.go --ids --fill
+2025/06/20 08:35:12 wrote result to "image.png"
+```
+
+generates the following 500x500 pixel image with
 the solid parts of the shapes filled and each polygon of outline
 numerically identified:
 
 ![filled outlines](n6w10m7if.png)
-
-```
-$ go run examples/lines.go --fill
-2025/06/20 08:35:12 wrote result to "image.png"
-```
 
 Use `go run examples/lines.go --help` to see all of the flag options.
 
@@ -80,8 +83,8 @@ $ go test -v
     polymark_test.go:159: [10]  got=".##..........."
     polymark_test.go:159: [11]  got=".##.........##"
     polymark_test.go:159: [12]  got=".#.#.......#.#"
-    polymark_test.go:159: [13]  got="..##.....####."
-    polymark_test.go:159: [14]  got="...######.#..."
+    polymark_test.go:159: [13]  got="..##.....##.#."
+    polymark_test.go:159: [14]  got="...######.##.."
     polymark_test.go:159: [15]  got=".....#####...."
     polymark_test.go:186: [ 0]  got="..#####.."
     polymark_test.go:186: [ 1]  got=".##..#.#."
@@ -115,7 +118,7 @@ $ go test -v
     polymark_test.go:224: [20]  got="####....####.."
     polymark_test.go:224: [21]  got="###########..."
     polymark_test.go:224: [22]  got="##..#####....."
---- PASS: TestText (0.00s)
+--- PASS: TestText (0.01s)
 === RUN   TestAlign
     polymark_test.go:264:   0> ".###############....#........................###############........#######....................###############....###########....."
     polymark_test.go:264:   1> "........#...........#...............................#..............##.....##..........................#...........#..........##..."
@@ -195,7 +198,7 @@ $ go test -v
     polymark_test.go:264:  75> ".................................................................................................................................."
 --- PASS: TestAlign (0.00s)
 PASS
-ok      zappem.net/pub/graphics/polymark        0.009s
+ok  	zappem.net/pub/graphics/polymark	0.017s
 ```
 
 ## Reporting bugs
