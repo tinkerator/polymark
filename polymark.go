@@ -113,8 +113,8 @@ const ()
 // and less of a width for the lines.
 func (pen *Pen) Text(s *polygon.Shapes, x, y, scale float64, a Alignment, font *hershey.Font, text string) *polygon.Shapes {
 	gl, xL, xR := font.Text(text)
-	wScale := pen.Scribe * scale
-	xScale := wScale
+	xScale := pen.Scribe * scale
+	wScale := xScale * 1.8
 	if scale <= 1.0 {
 		xScale = pen.Scribe
 	}
