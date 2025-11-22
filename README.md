@@ -3,7 +3,8 @@
 ## Overview
 
 For line graphics and plotters/lasers/cnc devices, it is convenient to
-be able to render shapes as outlines. This package converts desired
+be able to render shapes as outlines. This
+[package](https://zappem.net/pub/graphics/polymark/) converts desired
 shapes into such outlines in the form of
 [`polygon.Shapes`](https://zappem.net/pub/math/polygon).
 
