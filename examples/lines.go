@@ -1,4 +1,11 @@
 // Program lines draws the outline of a polygon line with --n lines.
+//
+// The coordinate system in polys is normally positive y is up. But
+// for the PNG output, the Y is mapped to down the page (as is
+// conventional with images). This means that when the polygon package
+// documentation says counter clockwise, this tool actually follows
+// clockwise conventions. This is also the natural orientation for the
+// hershey fonts, so no Reflect is used in the defined Pen.
 package main
 
 import (
@@ -11,6 +18,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"runtime/pprof"
 
 	"zappem.net/pub/graphics/hershey"
 	"zappem.net/pub/graphics/polymark"
@@ -19,23 +27,36 @@ import (
 )
 
 var (
-	n      = flag.Int("n", 6, "line count of polygon")
-	m      = flag.Int("m", 7, "number of overlapping polygons")
-	width  = flag.Int("width", 500, "width of image")
-	height = flag.Int("height", 500, "height of image")
-	dest   = flag.String("dest", "image.png", "name out output image")
-	wide   = flag.Float64("wide", 10, "pixel width of lines")
-	weight = flag.Float64("weight", 2, "edge line weight")
-	fact   = flag.Float64("fact", 2, "how much to spread polygons")
-	mid    = flag.Bool("mid-cap", true, "round mid-points of lines")
-	end    = flag.Bool("end-cap", true, "round end-points of lines")
-	fill   = flag.Bool("fill", false, "fill the interior of the shape")
-	ids    = flag.Bool("ids", false, "show polygon sequence number")
-	fn     = flag.String("font", "futural", "hershey font name")
+	n       = flag.Int("n", 6, "line count of polygon")
+	m       = flag.Int("m", 7, "number of overlapping polygons")
+	width   = flag.Int("width", 500, "width of image")
+	height  = flag.Int("height", 500, "height of image")
+	dest    = flag.String("dest", "image.png", "name out output image")
+	wide    = flag.Float64("wide", 10, "pixel width of lines")
+	weight  = flag.Float64("weight", 2, "edge line weight")
+	fact    = flag.Float64("fact", 2, "how much to spread polygons")
+	mid     = flag.Bool("mid-cap", true, "round mid-points of lines")
+	end     = flag.Bool("end-cap", true, "round end-points of lines")
+	fill    = flag.Bool("fill", false, "fill the interior of the shape")
+	ids     = flag.Bool("ids", false, "show polygon sequence number")
+	fn      = flag.String("font", "futural", "hershey font name")
+	scribe  = flag.Float64("scribe", 0.1, "width of thinnest line supported")
+	hatch   = flag.Float64("hatch", 1.0, "--fill density (pixels)")
+	angle   = flag.Float64("angle", 0.0, "--hatch angle (degrees)")
+	cpuprof = flag.String("prof", "", "generate a CPU perf profile")
 )
 
 func main() {
 	flag.Parse()
+
+	if *cpuprof != "" {
+		f, err := os.Create(*cpuprof)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
 
 	if *n <= 1 || *m <= 0 {
 		log.Fatalf("both --n=%d and --m=%d must be >1 and positive respectively", n, m)
@@ -86,7 +107,7 @@ func main() {
 			if p.Hole {
 				continue
 			}
-			lines, err := poly.Slice(i, 2, holes...)
+			lines, err := poly.Hatch(i, *scribe, *hatch, *angle/180*math.Pi, holes...)
 			if err != nil {
 				log.Fatalf("slice failed: %v", err)
 			}
