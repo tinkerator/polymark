@@ -107,7 +107,7 @@ func main() {
 			if p.Hole {
 				continue
 			}
-			lines, err := poly.Hatch(i, *scribe, *hatch, *angle/180*math.Pi, holes...)
+			lines, err := poly.Hatch(i, *scribe, *hatch, *hatch/2, *angle/180*math.Pi, holes...)
 			if err != nil {
 				log.Fatalf("slice failed: %v", err)
 			}

@@ -33,19 +33,18 @@ generates the following 500x500 pixel image:
 
 ![default outlines](n6w10m7.png)
 
-The default options for `example/lines.go` with the `--ids` and
-`--fill` arguments:
+With `--ids`, `--fill`, `--angle` and `--hatch` arguments:
 
 ```
-$ go run examples/lines.go --ids --fill
-2025/06/20 08:35:12 wrote result to "image.png"
+$ go run examples/lines.go --ids --fill --hatch 4 --angle 45
+2026/04/28 06:59:06 wrote result to "image.png"
 ```
 
-generates the following 500x500 pixel image with
-the solid parts of the shapes filled and each polygon of outline
-numerically identified:
+generates the following 500x500 pixel image with the solid parts of
+the shapes hatched at an angle of 45 degrees and each polygon of
+outline is numerically identified:
 
-![filled outlines](n6w10m7if.png)
+![filled outlines](n6w10m7ifh4a45.png)
 
 Use `go run examples/lines.go --help` to see all of the flag options.
 
