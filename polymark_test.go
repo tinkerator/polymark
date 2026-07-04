@@ -1,6 +1,7 @@
 package polymark
 
 import (
+	"encoding/json"
 	"image"
 	"image/color"
 	"math"
@@ -264,6 +265,76 @@ func TestAlign(t *testing.T) {
 			t.Errorf("%3d> %q", i, line)
 		} else {
 			t.Logf("%3d> %q", i, line)
+		}
+	}
+}
+
+func TestSpiral(t *testing.T) {
+	pen := Pen{
+		Scribe: .1,
+	}
+
+	from := polygon.Point{0, 0}
+	to := polygon.Point{2, 4}
+	pt := polygon.Point{0.5, 5}
+
+	s, err := pen.Spiral(nil, from, to, pt, 0.5, true, true, true, 0)
+	if err != nil {
+		t.Fatalf("failed with simple arc: %v", err)
+	}
+	s.Union()
+	if len(s.P) != 1 {
+		t.Errorf("expect one polygon, got %d", len(s.P))
+		d, err := json.Marshal(*s)
+		t.Errorf("s = %s (%v)", string(d), err)
+	}
+	ex := []string{
+		"##..",
+		"###.",
+		"..##",
+		"..##",
+		"..##",
+		"....",
+	}
+	for i, line := range display(s) {
+		t.Logf("%2d: %q", i, line)
+		if line != ex[i] {
+			t.Errorf("  wanted: %q", ex[i])
+		}
+	}
+
+	if _, err = pen.Spiral(nil, from, from, pt, 0.5, true, true, true, 0); err == nil {
+		t.Error("spiral for no distance should not be possible")
+	}
+
+	s, err = pen.Spiral(nil, from, from, pt, 0.25, true, true, true, 1)
+	if err != nil {
+		t.Fatalf("failed with simple arc: %v", err)
+	}
+	s.Union()
+	if len(s.P) != 2 {
+		t.Errorf("expect one polygon, got %d", len(s.P))
+		d, _ := json.Marshal(*s)
+		t.Errorf("s = %s", string(d))
+	}
+	ex = []string{
+		"...#####....",
+		"..###..###..",
+		".##.....###.",
+		"##.......##.",
+		"##........#.",
+		"#.........#.",
+		"#.........#.",
+		"##.......##.",
+		".##......##.",
+		".###...###..",
+		"..#######...",
+		"............",
+	}
+	for i, line := range display(s) {
+		t.Logf("%2d: %q", i, line)
+		if line != ex[i] {
+			t.Errorf("  wanted: %q", ex[i])
 		}
 	}
 }

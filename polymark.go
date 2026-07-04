@@ -3,6 +3,7 @@
 package polymark
 
 import (
+	"errors"
 	"math"
 
 	"zappem.net/pub/graphics/hershey"
@@ -89,6 +90,90 @@ func (pen *Pen) Line(s *polygon.Shapes, pts []polygon.Point, width float64, midC
 	return s
 }
 
+const twoPi = 2.0 * math.Pi
+
+// ErrNoSolution indicates that no solution is possible.
+var ErrNoSolution = errors.New("no solution")
+
+// spiral constructs a list of points that follow a spiral path from
+// from to to, around pt in rotational direction cc (true = counter
+// clockwise). The number of full rotations around pt is captured in
+// the winding number. If either the from or to points are equal to
+// pt, no solution is viable and an error will be returned.
+func spiral(width float64, from, to, pt polygon.Point, dir bool, winding uint) (pts []polygon.Point, err error) {
+	var u0, u1 polygon.Point
+
+	// Unit vector required to determine angles of start and
+	// end around center of spiral, pt.
+	if u0, err = pt.Unit(from); err != nil {
+		return
+	}
+	if u1, err = pt.Unit(to); err != nil {
+		return
+	}
+	if winding == 0 {
+		if diff := from.AddX(to, -1); diff.Dot(diff) < polygon.Zeroish2 {
+			err = ErrNoSolution
+			return
+		}
+	}
+
+	d0 := from.AddX(pt, -1)
+	r0 := u0.Dot(d0)
+	d1 := to.AddX(pt, -1)
+	r1 := u1.Dot(d1)
+	th0 := math.Atan2(u0.Y, u0.X)
+	th1 := math.Atan2(u1.Y, u1.X)
+
+	dTh := th1 - th0
+	delta := float64(winding) * twoPi
+	if dir {
+		if dTh < 0 {
+			dTh += twoPi
+		}
+		delta += dTh
+	} else {
+		if dTh > 0 {
+			dTh -= twoPi
+		}
+		delta = dTh - delta
+	}
+	r := r0
+	if r1 > r {
+		r = r1
+	}
+	n := math.Floor(4 * r / width)
+	if n < 4 {
+		n = 4
+	}
+	n *= 4 // want a multiple of 4 for no less precision than circle.
+	dA := delta / n
+	seg := int(math.Round(n))
+	step := (r1 - r0) / n
+	for i := 0; i < seg; i++ {
+		inc := float64(i)
+		r = r0 + inc*step
+		ang := th0 + dA*inc
+		pts = append(pts, polygon.Point{
+			pt.X + r*math.Cos(ang),
+			pt.Y + r*math.Sin(ang),
+		})
+	}
+	pts = append(pts, to)
+	return
+}
+
+// Spiral returns s augmented with a width spiral polygon outline. The
+// spiral has the winding number in the dir (counter-clockwise)
+// direction from from, to to around a central pt.
+func (pen *Pen) Spiral(s *polygon.Shapes, from, to, pt polygon.Point, width float64, dir, endCap, midCap bool, winding uint) (*polygon.Shapes, error) {
+	pts, err := spiral(width, from, to, pt, dir, winding)
+	if err != nil {
+		return s, err
+	}
+	return pen.Line(s, pts, width, midCap, endCap), nil
+}
+
 // Alignment holds the horizontal and vertical alignment for rendering
 // text.
 type Alignment int
@@ -103,8 +188,6 @@ const (
 	AlignAbove  Alignment = 4
 	AlignBelow  Alignment = 8
 )
-
-const ()
 
 // Text renders some text as a series of polygon outlines. For scale
 // >= 1.0 the enclosed polygon will have width scale*pen.Scribe, and
