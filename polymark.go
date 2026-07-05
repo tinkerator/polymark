@@ -68,7 +68,7 @@ func (pen *Pen) Line(s *polygon.Shapes, pts []polygon.Point, width float64, midC
 			}
 			last = pt
 			continue
-		} else if !last.NotSame(pt) {
+		} else if polygon.MatchPoint(last, pt) {
 			continue
 		}
 		dX, dY := pt.X-last.X, pt.Y-last.Y
