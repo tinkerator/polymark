@@ -68,6 +68,8 @@ func (pen *Pen) Line(s *polygon.Shapes, pts []polygon.Point, width float64, midC
 			}
 			last = pt
 			continue
+		} else if !last.NotSame(pt) {
+			continue
 		}
 		dX, dY := pt.X-last.X, pt.Y-last.Y
 		theta := -math.Atan2(dY, dX)
@@ -112,7 +114,7 @@ func spiral(width float64, from, to, pt polygon.Point, dir bool, winding uint) (
 		return
 	}
 	if winding == 0 {
-		if diff := from.AddX(to, -1); diff.Dot(diff) < polygon.Zeroish2 {
+		if !from.NotSame(to) {
 			err = ErrNoSolution
 			return
 		}
@@ -165,7 +167,11 @@ func spiral(width float64, from, to, pt polygon.Point, dir bool, winding uint) (
 
 // Spiral returns s augmented with a width spiral polygon outline. The
 // spiral has the winding number in the dir (counter-clockwise)
-// direction from from, to to around a central pt.
+// direction from from, to to around a central pt. If the distance
+// from pt of from and to are equal, the rendered polygon follows an
+// arc. If from and to are equal an the winding number is zero, an
+// error is returned. In the case of a winding number of 1, with from
+// and to equal, generates a circular ring of the specified width.
 func (pen *Pen) Spiral(s *polygon.Shapes, from, to, pt polygon.Point, width float64, dir, endCap, midCap bool, winding uint) (*polygon.Shapes, error) {
 	pts, err := spiral(width, from, to, pt, dir, winding)
 	if err != nil {
